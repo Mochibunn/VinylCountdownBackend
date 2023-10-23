@@ -1,20 +1,8 @@
 const express = require("express");
 const path = require("path");
-
+const { getAlbums } = require("./controllers/albumControllers");
 //for testing before connection to our database is established
-const userData = require("./migration/contentfulUserData.json");
-const albumData = require("./migration/contentfulAlbumsData.json");
-
-const usersWithId = userData.map((user, i) => ({ ...user, id: i + 1 }));
-const albumsWithId = albumData.map((album, i) => ({ ...album, id: i + 1 }));
-const newUser = {
-    firstName: "Iroh",
-    lastName: "Fire",
-    email: "iroh@fire.com",
-    password: "irohpass",
-    profilePic:
-        "https://upload.wikimedia.org/wikipedia/en/b/bb/General_Iroh.jpg",
-};
+const { usersWithId, albumsWithId, newUser } = require("./testdata");
 
 const app = express();
 const port = process.env.PORT || 24601;
@@ -23,10 +11,7 @@ app.route("/").get((req, res) => {
     return res.json([usersWithId, albumsWithId]);
 });
 
-app.route("/albums").get((req, res) => {
-    //I believe this endpoint can be used for new arrivals and recs, but not sure how queries work yet
-    return res.json(albumsWithId);
-});
+app.route("/albums").get(getAlbums);
 
 app.route("/albums/:id").get((req, res) => {
     if (!albumsWithId[req.params.id - 1])
