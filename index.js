@@ -5,7 +5,7 @@ const {
     getSingleAlbum,
 } = require("./controllers/albumControllers");
 const {
-    getAllUsers,
+    signInUser,
     makeNewUser,
     getSingleUser,
     editUser,
@@ -28,7 +28,7 @@ app.route("/albums").get(getAllAlbums);
 
 app.route("/albums/:id").get(getSingleAlbum);
 
-app.route("/users").get(getAllUsers).post(makeNewUser);
+app.route("/users").get(signInUser).post(makeNewUser);
 
 app.route("/users/:id")
     .get(getSingleUser)

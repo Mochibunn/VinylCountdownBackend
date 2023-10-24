@@ -1,6 +1,7 @@
 const { usersWithId } = require("../testdata");
 const dbPool = require("../db/pgClient");
 
+//huh, don't actually need this for our frontend
 const getAllUsers = async (req, res) => {
     try {
         const { rows } = await dbPool.query("SELECT * FROM users;");
@@ -11,6 +12,34 @@ const getAllUsers = async (req, res) => {
         // Actual query for our database (without password):
         // const { rows } = await dbPool.query(`SELECT duck_name as duckName, img_src as imgSrc, quote, json_build_object('id', owner.id, 'first_name', owner.first_name, 'last_name', owner.last_name, 'email', owner.email) as owner FROM duck JOIN owner ON owner.id=duck.owner_id`);
         res.json(rows);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ error: error.message });
+    }
+};
+
+//don't have a reference to the id if you sign in with a form, so select all users, then use queries to filter
+const signInUser = async (req, res) => {
+    try {
+        const { email, password } = req.query;
+        console.log(email, password);
+        if (!email || !password)
+            return res.status(400).json({
+                error: "Must enter email and password",
+            });
+        const {
+            rows: [user],
+        } = await dbPool.query(
+            `SELECT * FROM users WHERE email=$1 AND password=$2 AND active=true`,
+            [email, password]
+        );
+        // Actual query for our database (with password):
+        // const { rows } = await dbPool.query(
+        //   `SELECT duck_name, img_src as imgSrc, quote, to_json(owner.*) as owner FROM duck JOIN owner on owner.id=duck.owner_id;`
+        // );
+        // Actual query for our database (without password):
+        // const { rows } = await dbPool.query(`SELECT duck_name as duckName, img_src as imgSrc, quote, json_build_object('id', owner.id, 'first_name', owner.first_name, 'last_name', owner.last_name, 'email', owner.email) as owner FROM duck JOIN owner ON owner.id=duck.owner_id`);
+        res.json(user);
     } catch (error) {
         console.log(error);
         return res.status(500).json({ error: error.message });
@@ -76,7 +105,7 @@ const deactivateUser = async (req, res) => {
 };
 
 module.exports = {
-    getAllUsers,
+    signInUser,
     makeNewUser,
     getSingleUser,
     editUser,
