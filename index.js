@@ -11,6 +11,7 @@ const {
     editUser,
     deactivateUser,
 } = require("./controllers/userControllers");
+const { migrateUsers } = require("./controllers/migrateControllers");
 //for testing before connection to our database is established
 const { usersWithId, albumsWithId, newUser } = require("./testdata");
 
@@ -31,5 +32,7 @@ app.route("/users/:id")
     .get(getSingleUser)
     .patch(editUser)
     .delete(deactivateUser);
+
+app.route("/users/migrate").post(migrateUsers);
 
 app.listen(port, () => console.log(`Server up on port ${port}`));

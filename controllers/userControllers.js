@@ -3,7 +3,7 @@ const dbPool = require("../db/pgClient");
 
 const getAllUsers = async (req, res) => {
     try {
-        const { rows } = await dbPool.query("SELECT * FROM old_users;");
+        const { rows } = await dbPool.query("SELECT * FROM users;");
         // Actual query for our database (with password):
         // const { rows } = await dbPool.query(
         //   `SELECT duck_name, img_src as imgSrc, quote, to_json(owner.*) as owner FROM duck JOIN owner on owner.id=duck.owner_id;`
