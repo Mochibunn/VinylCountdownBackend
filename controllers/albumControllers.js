@@ -1,9 +1,14 @@
-const { usersWithId, albumsWithId, newUser } = require("../testdata");
+const { albumsWithId } = require("../testdata");
 
-const getAlbums = () => {
-    (req, res) => {
-        return res.json(albumsWithId);
-    };
+const getAllAlbums = (req, res) => {
+    return res.json(albumsWithId);
 };
 
-module.exports = { getAlbums };
+const getSingleAlbum = (req, res) => {
+    console.log(req.params.id);
+    if (!albumsWithId[req.params.id - 1])
+        return res.status(404).send("Album not found!");
+    return res.json(albumsWithId[req.params.id - 1]);
+};
+
+module.exports = { getAllAlbums, getSingleAlbum };
