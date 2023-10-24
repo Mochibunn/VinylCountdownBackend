@@ -18,6 +18,8 @@ const { usersWithId, albumsWithId, newUser } = require("./testdata");
 const app = express();
 const port = process.env.PORT || 24601;
 
+app.use(express.json());
+
 app.route("/").get((req, res) => {
     return res.json([usersWithId, albumsWithId]);
 });
