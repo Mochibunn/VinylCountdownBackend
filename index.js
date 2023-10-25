@@ -3,6 +3,7 @@ const path = require("path");
 const {
     getAllAlbums,
     getSingleAlbum,
+    migrateAlbums,
 } = require("./controllers/albumControllers");
 const {
     signInUser,
@@ -36,6 +37,8 @@ app.route("/").get((req, res) => {
 app.route("/albums").get(getAllAlbums);
 
 app.route("/albums/:id").get(getSingleAlbum);
+
+app.route("/albums/migrate").post(migrateAlbums);
 
 app.route("/users").get(signInUser).post(makeNewUser);
 
