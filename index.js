@@ -10,6 +10,8 @@ const {
     getSingleUser,
     editUser,
     deactivateUser,
+    addToWishlist,
+    removeFromWishlist,
 } = require("./controllers/userControllers");
 const { migrateUsers } = require("./controllers/migrateControllers");
 //for testing before connection to our database is established
@@ -42,6 +44,9 @@ app.route("/users/:id")
     .patch(editUser)
     .delete(deactivateUser);
 
+app.route("/wishlist/:userId/:albumId")
+    .post(addToWishlist)
+    .delete(removeFromWishlist);
 app.route("/users/migrate").post(migrateUsers);
 
 app.listen(port, () => console.log(`Server up on port ${port}`));

@@ -28,7 +28,16 @@ const signInUser = async (req, res) => {
                 error: "Must enter email and password",
             });
         const { rows } = await dbPool.query(
-            `SELECT * FROM users WHERE email=$1 AND password=$2 AND active=true`,
+            `SELECT users.*, array_agg(to_json(test_albums.*)) as wishlist FROM users 
+JOIN test_wishlist ON test_wishlist.user_id = users.id 
+JOIN test_albums ON test_albums.id = test_wishlist.test_album_id
+WHERE email=$1 AND password=$2 AND active=true
+GROUP BY users.*, users.id`,
+            //             `SELECT * FROM users
+            // JOIN test_wishlist ON test_wishlist.user_id = users.id
+            // JOIN test_albums ON test_albums.id = test_wishlist.test_album_id
+            // WHERE email=$1 AND password=$2 AND active=true`,
+            // `SELECT * FROM users WHERE email=$1 AND password=$2 AND active=true`,
             [email, password]
         );
         // Actual query for our database (with password):
@@ -101,6 +110,38 @@ const deactivateUser = async (req, res) => {
         return res.status(500).json({ error: error.message });
     }
 };
+const addToWishlist = async (req, res) => {
+    try {
+        const { userId, albumId } = req.params;
+        const {
+            rows: [newItem],
+        } = await dbPool.query(
+            "INSERT INTO test_wishlist (user_id, test_album_id) VALUES ($1, $2) RETURNING *;",
+            [userId, albumId]
+        );
+
+        return res.status(201).json(newItem);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ error: error.message });
+    }
+};
+const removeFromWishlist = async (req, res) => {
+    try {
+        const { userId, albumId } = req.params;
+        const {
+            rows: [newItem],
+        } = await dbPool.query(
+            "DELETE FROM test_wishlist WHERE user_id=$1 AND test_album_id=$2 RETURNING *;",
+            [userId, albumId]
+        );
+
+        return res.status(201).json(newItem);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ error: error.message });
+    }
+};
 
 module.exports = {
     signInUser,
@@ -108,4 +149,6 @@ module.exports = {
     getSingleUser,
     editUser,
     deactivateUser,
+    addToWishlist,
+    removeFromWishlist,
 };
