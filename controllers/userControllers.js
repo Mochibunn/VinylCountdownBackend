@@ -93,8 +93,24 @@ const getSingleUser = async (req, res) => {
 
 const editUser = async (req, res) => {
     try {
-        //will be needed to add/remove to wishlist (I think)-not sure how this works with the intermediary table
-        return res.json(usersWithId);
+        const {
+            params: { id },
+            body: { first_name, last_name, email, password, profile_pic },
+        } = req;
+
+        if (!+id) return res.status(400).json({ error: "Id must be a number" });
+
+        if (!first_name || !last_name || !email || !password)
+            return res.status(400).json({ error: "Missing fields" });
+
+        const {
+            rows: [updatedUser],
+        } = await dbPool.query(
+            "UPDATE users SET first_name=$1, last_name=$2, email=$3, password=$4, profile_pic=$5, updated_at=NOW() WHERE id=$6 RETURNING *;",
+            [first_name, last_name, email, password, profile_pic, id]
+        );
+
+        return res.json(updatedUser);
     } catch (error) {
         console.log(error);
         return res.status(500).json({ error: error.message });
@@ -103,8 +119,18 @@ const editUser = async (req, res) => {
 
 const deactivateUser = async (req, res) => {
     try {
-        //will update active boolean to false rather than actually deleting
-        return res.json({});
+        const { id } = req.params;
+
+        if (!+id) return res.status(400).json({ error: "Id must be a number" });
+
+        const {
+            rows: [deactivatedUser],
+        } = await dbPool.query(
+            "UPDATE users SET active=false, updated_at=NOW() WHERE id=$1 RETURNING *;",
+            [id]
+        );
+
+        return res.json(deactivatedUser);
     } catch (error) {
         console.log(error);
         return res.status(500).json({ error: error.message });
