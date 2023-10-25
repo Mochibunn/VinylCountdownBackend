@@ -1,6 +1,7 @@
 const { usersWithId } = require("../testdata");
 const dbPool = require("../db/pgClient");
 
+//huh, don't actually need this for our frontend
 const getAllUsers = async (req, res) => {
     try {
         const { rows } = await dbPool.query("SELECT * FROM users;");
@@ -17,10 +18,46 @@ const getAllUsers = async (req, res) => {
     }
 };
 
+//don't have a reference to the id if you sign in with a form, so select all users, then use queries to filter
+const signInUser = async (req, res) => {
+    try {
+        const { email, password } = req.query;
+        console.log(email, password);
+        if (!email || !password)
+            return res.status(400).json({
+                error: "Must enter email and password",
+            });
+        const { rows } = await dbPool.query(
+            `SELECT * FROM users WHERE email=$1 AND password=$2 AND active=true`,
+            [email, password]
+        );
+        // Actual query for our database (with password):
+        // const { rows } = await dbPool.query(
+        //   `SELECT duck_name, img_src as imgSrc, quote, to_json(owner.*) as owner FROM duck JOIN owner on owner.id=duck.owner_id;`
+        // );
+        // Actual query for our database (without password):
+        // const { rows } = await dbPool.query(`SELECT duck_name as duckName, img_src as imgSrc, quote, json_build_object('id', owner.id, 'first_name', owner.first_name, 'last_name', owner.last_name, 'email', owner.email) as owner FROM duck JOIN owner ON owner.id=duck.owner_id`);
+        res.json(rows);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ error: error.message });
+    }
+};
+
 const makeNewUser = async (req, res) => {
     try {
-        //in this way we'd just push the new user onto usersWithId, but that doesn't really translate to the database way, so no point in writing it
-        return res.json(usersWithId);
+        const { first_name, last_name, email, password, profile_pic } =
+            req.body;
+        if (!first_name || !last_name || !email || !password)
+            return res.status(400).json({ error: "Missing fields" });
+        const {
+            rows: [newUser],
+        } = await dbPool.query(
+            "INSERT INTO users (first_name, last_name, email, password, profile_pic) VALUES ($1, $2, $3, $4, $5) RETURNING *;",
+            [first_name, last_name, email, password, profile_pic || null]
+        );
+
+        return res.status(201).json(newUser);
     } catch (error) {
         console.log(error);
         return res.status(500).json({ error: error.message });
@@ -29,9 +66,16 @@ const makeNewUser = async (req, res) => {
 
 const getSingleUser = async (req, res) => {
     try {
-        if (!usersWithId[req.params.id - 1])
-            return res.status(404).send("User not found!");
-        return res.json(usersWithId[req.params.id - 1]);
+        const { id } = req.params;
+        if (!+id) return res.status(400).json({ error: "Id must be a number" });
+        const {
+            rows: [user],
+        } = await dbPool.query(
+            `SELECT * FROM users WHERE id=$1 AND active=true`,
+            [id]
+        );
+        if (!user) return res.status(404).json({ error: "User not found" });
+        return res.json(user);
     } catch (error) {
         console.log(error);
         return res.status(500).json({ error: error.message });
@@ -59,7 +103,7 @@ const deactivateUser = async (req, res) => {
 };
 
 module.exports = {
-    getAllUsers,
+    signInUser,
     makeNewUser,
     getSingleUser,
     editUser,
