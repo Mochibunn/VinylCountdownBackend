@@ -52,4 +52,4 @@ app.route("/wishlist/:userId/:albumId")
     .delete(removeFromWishlist);
 app.route("/users/migrate").post(migrateUsers);
 
-app.listen(port, () => console.log(`Server up on port ${port}`));
+app.listen(port, () => console.log(`Hello from index.js! Server up on port ${port}. 🐰`));
