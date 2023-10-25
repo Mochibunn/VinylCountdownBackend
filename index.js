@@ -14,11 +14,18 @@ const {
 const { migrateUsers } = require("./controllers/migrateControllers");
 //for testing before connection to our database is established
 const { usersWithId, albumsWithId, newUser } = require("./testdata");
+const cors = require("cors");
 
 const app = express();
 const port = process.env.PORT || 24601;
 
 app.use(express.json());
+// app.use(express.static(path.join(__dirname, "public")));
+app.use(
+    cors({
+        origin: "*",
+    })
+);
 
 app.route("/").get((req, res) => {
     return res.json([usersWithId, albumsWithId]);

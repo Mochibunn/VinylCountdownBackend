@@ -27,9 +27,7 @@ const signInUser = async (req, res) => {
             return res.status(400).json({
                 error: "Must enter email and password",
             });
-        const {
-            rows: [user],
-        } = await dbPool.query(
+        const { rows } = await dbPool.query(
             `SELECT * FROM users WHERE email=$1 AND password=$2 AND active=true`,
             [email, password]
         );
@@ -39,7 +37,7 @@ const signInUser = async (req, res) => {
         // );
         // Actual query for our database (without password):
         // const { rows } = await dbPool.query(`SELECT duck_name as duckName, img_src as imgSrc, quote, json_build_object('id', owner.id, 'first_name', owner.first_name, 'last_name', owner.last_name, 'email', owner.email) as owner FROM duck JOIN owner ON owner.id=duck.owner_id`);
-        res.json(user);
+        res.json(rows);
     } catch (error) {
         console.log(error);
         return res.status(500).json({ error: error.message });
