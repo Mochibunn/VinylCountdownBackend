@@ -19,7 +19,7 @@ const migrateAlbums = async (req, res) => {
 					'${album.comment}',
 					'${album.genre}')`;
       else
-			queryString += `(
+        queryString += `(
 				'${album.title}',
 				'${album.artist}',
 				'${album.year}',
@@ -40,29 +40,31 @@ const migrateAlbums = async (req, res) => {
   } catch (error) {
     console.log(error);
     console.log(error.stack);
-    return res.status(500).json({ ':( Oh no, an error!': error.message });
+    return res.status(500).json({ ":( Oh no, an error!": error.message });
   }
 };
 
-
-
-
-
-
-
-
-
 const { albumsWithId } = require("../testdata");
 
-const getAllAlbums = (req, res) => {
-    return res.json(albumsWithId);
+const getAllAlbums = async (req, res) => {
+	try {
+		const { rows } = await dbPool.query("SELECT * FROM albums;");
+		return	res.status(200).json(rows);
+	} catch (error) {
+		console.log(error);
+		return	res.status(500).json({"Oh no, an error?": error.message});
+	}
 };
 
+// const getAllAlbums = (req, res) => {
+//     return res.json(albumsWithId);
+// };
+
 const getSingleAlbum = (req, res) => {
-    console.log(req.params.id);
-    if (!albumsWithId[req.params.id - 1])
-        return res.status(404).send("Album not found!");
-    return res.json(albumsWithId[req.params.id - 1]);
+  console.log(req.params.id);
+  if (!albumsWithId[req.params.id - 1])
+    return res.status(404).send("Album not found!");
+  return res.json(albumsWithId[req.params.id - 1]);
 };
 
 module.exports = { getAllAlbums, getSingleAlbum, migrateAlbums };
