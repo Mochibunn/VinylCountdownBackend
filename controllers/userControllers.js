@@ -28,8 +28,8 @@ const signInUser = async (req, res) => {
             });
         const { rows } = await dbPool.query(
             `SELECT users.*, array_agg(to_json(albums.*)) as wishlist FROM users
-            JOIN wishlist ON wishlist.user_id = users.id
-            JOIN albums ON albums.id = wishlist.album_id
+            LEFT JOIN wishlist ON wishlist.user_id = users.id
+            LEFT JOIN albums ON albums.id = wishlist.album_id
             WHERE email=$1 AND password=$2 AND active=true
             GROUP BY users.*, users.id`,
 
