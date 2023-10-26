@@ -79,7 +79,7 @@ const getSingleAlbum = async (req, res) => {
       rows: [album],
     } = await dbPool.query("SELECT * FROM albums WHERE id=$1", [id]);
     if (!album) {
-      console.log(`⚠️ 🐰 Database could not find ID of ${req.params.id}`);
+      console.log(`⚠️🐰 Database could not find ID of ${req.params.id}`);
       return res
         .status(404)
         .json({
