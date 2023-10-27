@@ -4,6 +4,7 @@ const {
     getAllAlbums,
     getSingleAlbum,
     migrateAlbums,
+    getRecs,
 } = require("./controllers/albumControllers");
 const {
     signInUser,
@@ -38,6 +39,8 @@ app.route("/albums").get(getAllAlbums);
 
 app.route("/albums/:id").get(getSingleAlbum);
 
+app.route("/albums/:id/recommendations").get(getRecs);
+
 app.route("/albums/migrate").post(migrateAlbums);
 
 app.route("/users").get(signInUser).post(makeNewUser);
@@ -52,4 +55,4 @@ app.route("/wishlist/:userId/:albumId")
     .delete(removeFromWishlist);
 app.route("/users/migrate").post(migrateUsers);
 
-app.listen(port, () => console.log(`🟢🐰 Server up on port ${port}!`));
+app.listen(port, () => console.log(`\n🟢🐰 Server up on port ${port}!`));
